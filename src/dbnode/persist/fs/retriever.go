@@ -575,17 +575,9 @@ func (r *blockRetriever) streamRequest(
 		return false, err
 	}
 	req.shard = shard
-
-	// NB(r): If the ID is a ident.BytesID then we can just hold
-	// onto this ID.
-	seriesID := id
-	if !seriesID.IsNoFinalize() {
-		// NB(r): Clone the ID as we're not positive it will stay valid throughout
-		// the lifecycle of the async request.
-		seriesID = r.idPool.Clone(id)
-	}
-
-	req.id = seriesID
+	// NB(r): Clone the ID as we're not positive it will stay valid throughout
+	// the lifecycle of the async request.
+	req.id = r.idPool.Clone(id)
 	req.start = startTime
 	req.blockSize = r.blockSize
 
