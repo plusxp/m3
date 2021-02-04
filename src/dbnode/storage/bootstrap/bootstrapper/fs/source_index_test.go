@@ -26,6 +26,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+	"github.com/uber-go/tally"
+
 	"github.com/m3db/m3/src/dbnode/namespace"
 	"github.com/m3db/m3/src/dbnode/persist"
 	"github.com/m3db/m3/src/dbnode/persist/fs"
@@ -37,8 +40,6 @@ import (
 	idxpersist "github.com/m3db/m3/src/m3ninx/persist"
 	"github.com/m3db/m3/src/x/ident"
 	xtime "github.com/m3db/m3/src/x/time"
-	"github.com/stretchr/testify/require"
-	"github.com/uber-go/tally"
 )
 
 type testTimesOptions struct {
@@ -465,7 +466,7 @@ func TestBootstrapIndexWithPersistPrefersPersistedIndexBlocks(t *testing.T) {
 
 	// Now write index block segment from first two data blocks
 	testData := testGoodTaggedSeriesDataBlocks()
-	shards := map[uint32]struct{}{testShard: struct{}{}}
+	shards := map[uint32]struct{}{testShard: {}}
 	writeTSDBPersistedIndexBlock(t, dir, testNsMetadata(t), times.start, shards,
 		append(testData[0], testData[1]...))
 
@@ -527,7 +528,7 @@ func TestBootstrapIndexWithPersistPrefersPersistedIndexBlocks(t *testing.T) {
 // blocks it is trying to build.
 func TestBootstrapIndexWithPersistForIndexBlockAtRetentionEdge(t *testing.T) {
 	dir := createTempDir(t)
-	defer os.RemoveAll(dir)
+	defer require.NoError(t, os.RemoveAll(dir))
 
 	timesOpts := testTimesOptions{
 		numBlocks: 3,
